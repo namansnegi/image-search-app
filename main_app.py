@@ -44,7 +44,4 @@ def index():
     
     return render_template('index.html', input_image_url=input_image_url, similar_images=similar_images, error=error)
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
 

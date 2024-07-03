@@ -108,6 +108,10 @@
             object-fit: cover;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+        .small-images img.selected {
+            border: 2px solid #333;
         }
         .btn-container {
             text-align: center;
@@ -122,41 +126,57 @@
             border-radius: 4px;
             cursor: pointer;
             margin-top: 40px;
-
         }
         .error {
             color: red;
             margin-top: 10px;
         }
     </style>
-<script>
-    function validateForm() {
-        const url = document.getElementById('url').value;
-        const errorElement = document.getElementById('error-message');
+    <script>
+        function validateForm() {
+            const url = document.getElementById('url').value;
+            const errorElement = document.getElementById('error-message');
 
-        // Basic URL validation
-        try {
-            new URL(url);
-        } catch (_) {
-            errorElement.textContent = 'Invalid URL';
-            errorElement.style.display = 'block';
-            return false;
+            // Basic URL validation
+            try {
+                new URL(url);
+            } catch (_) {
+                errorElement.textContent = 'Invalid URL';
+                errorElement.style.display = 'block';
+                return false;
+            }
+
+            // Check if URL is an image
+            const imageExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+            const urlExtension = url.split('.').pop().toLowerCase();
+            if (!imageExtensions.includes(urlExtension)) {
+                errorElement.textContent = 'URL does not point to a valid image';
+                errorElement.style.display = 'block';
+                return false;
+            }
+
+            errorElement.textContent = ''; // Clear error message
+            errorElement.style.display = 'none';
+            return true; // Allow form submission
         }
 
-        // Check if URL is an image
-        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif'];
-        const urlExtension = url.split('.').pop().toLowerCase();
-        if (!imageExtensions.includes(urlExtension)) {
-            errorElement.textContent = 'URL does not point to a valid image';
-            errorElement.style.display = 'block';
-            return false;
+        function selectImage(event) {
+            const mainImage = document.getElementById('main-similar-image');
+            mainImage.src = event.target.src;
+
+            // Remove 'selected' class from all small images
+            const smallImages = document.querySelectorAll('.small-images img');
+            smallImages.forEach(img => img.classList.remove('selected'));
+
+            // Add 'selected' class to clicked image
+            event.target.classList.add('selected');
         }
 
-        errorElement.textContent = ''; // Clear error message
-        errorElement.style.display = 'none';
-        return true; // Allow form submission
-    }
-</script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const smallImages = document.querySelectorAll('.small-images img');
+            smallImages.forEach(img => img.addEventListener('click', selectImage));
+        });
+    </script>
 </head>
 <body>
     <header>
@@ -179,9 +199,9 @@
                 {% if similar_images %}
                     <div class="image-block">
                         <h2>Similar Images</h2>
-                        <img src="{{ similar_images[0] }}" alt="Similar Image 1">
+                        <img id="main-similar-image" src="{{ similar_images[0] }}" alt="Similar Image 1">
                         <div class="small-images">
-                            {% for img_url in similar_images[0:] %}
+                            {% for img_url in similar_images %}
                                 <img src="{{ img_url }}" alt="Similar Image">
                             {% endfor %}
                         </div>
@@ -189,29 +209,12 @@
                 {% endif %}
             </div>
         {% else %}
-                <form method="post" action="/">
+                <form method="post" action="/" onsubmit="return validateForm()">
                 <h2 style="font-size: medium;">Enter the Image URL:</h2>
                 <input type="text" id="url" name="url" placeholder="https://placehold.co/600x400/000000/FFFFFF/jpg" required>
-                <button type="submit" onclick="validateForm()">Find Similar Images</button>
+                <button type="submit">Find Similar Images</button>
             </form>       
         {% endif %}
     </div>
-
-    <script>
-        function validateForm() {
-            var url = document.getElementById('url');
-            var urlPattern = new RegExp('^https?://.+\\.(jpg|jpeg|png|gif|bmp)$', 'i');
-            if (!urlPattern.test(url.value)) {
-                url.setCustomValidity('Invalid Image URL');
-            } else {
-                url.setCustomValidity('');
-            }
-            if(url.checkValidity()) {
-                // If the URL is valid, manually submit the form
-                url.form.submit();
-            }
-        }
-    </script>
-    
 </body>
 </html>

@@ -6,7 +6,7 @@ from io import BytesIO
 app = Flask(__name__)
 
 # Set your API URL here
-API_URL = 'http://localhost:8000/similar'  # Update this to your FastAPI endpoint
+API_URL = 'https://web-646-1deb7c86-0qdgf9mi.onporter.run/similar' 
 
 def is_valid_image_url(url):
     try:
